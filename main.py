@@ -19,11 +19,7 @@ try:
         bpsk.calculateNumberOfSamples()
         bpsk.setUpTime()
         bpsk.setUpVisibleLimit()
-
-        if bpsk.noise_amplitude > 0:
-            bpsk.calculateBSPKSignalWithNoise()
-        else:
-            bpsk.calculateBSPKSignal()
+        bpsk.calculateBSPKSignalWithNoise()
 
     else:
         print("Please enter integers above 0 for all inputs.")
@@ -60,6 +56,11 @@ axis[2].grid(linestyle='dotted')
 plt.subplots_adjust(hspace=1.3)
 plt.title('BPSK Modulation', fontsize=12)
 plt.show()
+
+ber = bpsk.calculateBER()
+
+print("BER vrednost: {:.4f}".format(ber))
+print("BER: {:.4f}%".format(ber * 100))
 
 # sd.play(bpsk.bpsk_signal, bpsk.fs/3)
 # sd.wait()

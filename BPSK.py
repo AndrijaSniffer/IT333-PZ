@@ -1,14 +1,17 @@
+import math
+
 import numpy as np
 
 from numpy import pi
 from numpy import cos
 from numpy import r_
+import matplotlib.pyplot as plt
 
 
 def GetBpskSymbol(bit1: bool):
-    if (~bit1):
+    if ~bit1:
         return 0
-    elif (bit1):
+    elif bit1:
         return 1
     else:
         return -1
@@ -70,15 +73,6 @@ class BPSK:
         self.input_signal = (np.tile(self.input_bits * 2 - 1, (1, self.Ns))).ravel()
         self.data_symbols = np.array([[GetBpskSymbol(self.input_bits[x])] for x in range(0, self.input_bits.size)])
 
-    # Metoda instance za izračunavanje BPSK signala
-    def calculateBSPKSignal(self):
-        self.calculateCarrier()
-        self.assignInputBits()
-        self.digitalToAnalogConvertor()
-
-        # Multiplicator
-        self.bpsk_signal = self.input_signal * self.carrier_signal
-
     def calculateBSPKSignalWithNoise(self):
         self.calculateCarrier()
         self.assignInputBits()
@@ -90,3 +84,59 @@ class BPSK:
 
         # Dodavanje šuma na BPSK signal
         self.bpsk_signal = input_signal_with_noise * self.carrier_signal
+
+    def calculateBER(self):
+        # Demodulation of the BPSK signal
+        demodulated_signal = self.bpsk_signal * self.carrier_signal
+
+        # Filtering the signal
+        # filtered_signal = np.convolve(demodulated_signal, np.ones(self.Ns) / self.Ns, mode='valid')
+
+        # Visualizing the filtered signal (optional)
+        # plt.plot(self.t[:len(filtered_signal)], filtered_signal)
+        # plt.show()
+
+        # Calculate the decision threshold as the midpoint between the min and max values of the filtered signal
+        decision_threshold = 0
+
+        # plt.plot(demodulated_signal, label='Demodulated Signal')
+        # plt.axhline(y=decision_threshold, color='r', linestyle='--', label='Decision Threshold')
+        # plt.xlabel('Time')
+        # plt.ylabel('Amplitude')
+        # plt.title('Demodulated Signal and Decision Threshold')
+        # plt.legend()
+        # plt.show()
+
+        # Odbiranje i donošenje odluka sa pravilnim pragom
+        received_bits = (demodulated_signal > decision_threshold).astype(int)
+
+        # Error calculation
+        errors = 0
+
+        # Comparing with input bits
+        it_start = 0
+        it_end = 39
+        for input_bit in self.input_bits:
+            # print(input_bit)
+            # print(np.all(received_bits[it_start:it_end] == 0))
+            # print(input_bit != np.all(received_bits[it_start:it_end] == 0))
+            # print("\n")
+            if not (input_bit != np.all(received_bits[it_start:it_end] == 0)):
+                errors += 1
+            it_start += 40
+            it_end += 40
+
+        # BER calculation
+        if errors == 0:
+            return 0
+        else:
+            ber = errors / self.nbits
+            return ber
+
+        # Additional print statements
+        # print("Filtered Signal:", filtered_signal)
+        # print("Decision Threshold:", decision_threshold)
+        # print("Received Bits:", received_bits)
+        # print("Input Bits:", self.input_bits)
+        # print("Min Filtered Signal:", np.min(filtered_signal))
+        # print("Max Filtered Signal:", np.max(filtered_signal))
