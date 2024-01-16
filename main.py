@@ -1,16 +1,65 @@
-# This is a sample Python script.
+import matplotlib.pyplot as plt
+import sounddevice as sd
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from BPSK import BPSK
 
+bpsk = BPSK()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Get 4 integers from the console
+try:
+    bpsk.fs = int(input("Unesite stopu uzorkovanja (veće od 0): "))
+    bpsk.baud = int(input("Unesite stopu simbola (veće od 0): "))
+    bpsk.nbits = int(input("Unesite broj bitova (veći od 0): "))
+    bpsk.f0 = int(input("Unesite frekvencu nosača (veću od 0): "))
+    bpsk.noise_amplitude = float(input("Unesite nivo šuma (0.1 = 10%): "))
 
+    # Check if all numbers are above 0
+    if bpsk.fs > 0 and bpsk.baud > 0 and bpsk.nbits > 0 and bpsk.f0 > 0:
+        bpsk.calculateNumberOfSamplesPerSymbol()
+        bpsk.calculateNumberOfSamples()
+        bpsk.setUpTime()
+        bpsk.setUpVisibleLimit()
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+        if bpsk.noise_amplitude > 0:
+            bpsk.calculateBSPKSignalWithNoise()
+        else:
+            bpsk.calculateBSPKSignal()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    else:
+        print("Please enter integers above 0 for all inputs.")
+        exit(1)
+except ValueError as e:
+    print(e)
+    exit(1)
+
+# ---------- Plot of BPSK ------------#
+# ---------- Time Domain Signals ----------#
+fig, axis = plt.subplots(3, 1)
+
+axis[0].plot(bpsk.t, bpsk.input_signal, color='C1')
+axis[0].set_title('Input Signal')
+axis[0].set_xlabel('Time [s]')
+axis[0].set_xlim(0, bpsk.time_domain_visible_limit)
+axis[0].set_ylabel('Amplitude [V]')
+axis[0].grid(linestyle='dotted')
+
+axis[1].plot(bpsk.t, bpsk.carrier_signal, color='C2')
+axis[1].set_title('Carrier Signal')
+axis[1].set_xlabel('Time [s]')
+axis[1].set_xlim(0, bpsk.time_domain_visible_limit)
+axis[1].set_ylabel('Amplitude [V]')
+axis[1].grid(linestyle='dotted')
+
+axis[2].plot(bpsk.t, bpsk.bpsk_signal, color='C3')
+axis[2].set_title('BPSK Modulated Signal')
+axis[2].set_xlabel('Time [s]')
+axis[2].set_xlim(0, bpsk.time_domain_visible_limit)
+axis[2].set_ylabel('Amplitude [V]')
+axis[2].grid(linestyle='dotted')
+
+plt.subplots_adjust(hspace=1.3)
+plt.title('BPSK Modulation', fontsize=12)
+plt.show()
+
+# sd.play(bpsk.bpsk_signal, bpsk.fs/3)
+# sd.wait()
