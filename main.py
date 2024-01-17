@@ -15,11 +15,11 @@ try:
 
     # Check if all numbers are above 0
     if bpsk.fs > 0 and bpsk.baud > 0 and bpsk.nbits > 0 and bpsk.f0 > 0:
-        bpsk.calculateNumberOfSamplesPerSymbol()
-        bpsk.calculateNumberOfSamples()
-        bpsk.setUpTime()
-        bpsk.setUpVisibleLimit()
-        bpsk.calculateBSPKSignalWithNoise()
+        bpsk.calculate_number_of_samples_per_symbol()
+        bpsk.calculate_number_of_samples()
+        bpsk.set_up_time()
+        bpsk.set_up_visible_limit()
+        bpsk.make_bpsk_signal_with_noise()
 
     else:
         print("Please enter integers above 0 for all inputs.")
@@ -31,6 +31,7 @@ except ValueError as e:
 # ---------- Plot of BPSK ------------#
 # ---------- Time Domain Signals ----------#
 fig, axis = plt.subplots(3, 1)
+plt.title('BPSK Modulation', fontsize=12)
 
 axis[0].plot(bpsk.t, bpsk.input_signal, color='C1')
 axis[0].set_title('Input Signal')
@@ -53,13 +54,13 @@ axis[2].set_xlim(0, bpsk.time_domain_visible_limit)
 axis[2].set_ylabel('Amplitude [V]')
 axis[2].grid(linestyle='dotted')
 
+plt.suptitle('BPSK Modulation', fontsize=12)
 plt.subplots_adjust(hspace=1.3)
-plt.title('BPSK Modulation', fontsize=12)
 plt.show()
 
-ber = bpsk.calculateBER()
+ber = bpsk.calculate_ber()
 
-print("BER vrednost: {:.4f}".format(ber))
+print("\nBER vrednost: {:.4f}".format(ber))
 print("BER: {:.4f}%".format(ber * 100))
 
 # sd.play(bpsk.bpsk_signal, bpsk.fs/3)
