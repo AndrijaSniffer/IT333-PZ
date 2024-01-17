@@ -25,7 +25,7 @@ class BPSK:
     Ns = 0  # Broj uzoraka po simbolu (number of Samples per Symbol)
     N = 0  # Ukupan broj uzoraka (Total Number of Samples)
     t = 0  # Tačke vremena (time points)
-    noise_amplitude = 0.0
+    noise_amplitude = 0.0  # Amplituda šuma
 
     # Limit za prikaz vremenskog signala radi bolje vidljivosti.
     symbols_to_show = 25
@@ -86,57 +86,55 @@ class BPSK:
         self.bpsk_signal = input_signal_with_noise * self.carrier_signal
 
     def calculateBER(self):
-        # Demodulation of the BPSK signal
+        # Demodulacija BPSK signala
         demodulated_signal = self.bpsk_signal * self.carrier_signal
 
-        # Filtering the signal
-        # filtered_signal = np.convolve(demodulated_signal, np.ones(self.Ns) / self.Ns, mode='valid')
+        # Filtriranje signala
+        # Bolji BER se dobija bez filtriranja signala
+        # filtrirani_signal = np.convolve(demodulated_signal, np.ones(self.Ns) / self.Ns, mode='valid')
 
-        # Visualizing the filtered signal (optional)
-        # plt.plot(self.t[:len(filtered_signal)], filtered_signal)
+        # Vizualizacija filtriranog signala
+        # plt.plot(self.t[:len(filtrirani_signal)], filtrirani_signal)
         # plt.show()
 
-        # Calculate the decision threshold as the midpoint between the min and max values of the filtered signal
+        # Računanje praga odlučivanja kao srednje vrednosti između min i max vrednosti filtriranog signala
+        # Za bolji rezultat stavljen je na 0
         decision_threshold = 0
 
-        # plt.plot(demodulated_signal, label='Demodulated Signal')
-        # plt.axhline(y=decision_threshold, color='r', linestyle='--', label='Decision Threshold')
-        # plt.xlabel('Time')
-        # plt.ylabel('Amplitude')
-        # plt.title('Demodulated Signal and Decision Threshold')
+        # plt.plot(demodulated_signal, label='Demodulisani Signal')
+        # plt.axhline(y=decision_threshold, color='r', linestyle='--', label='Prag Odlučivanja')
+        # plt.xlabel('Vreme')
+        # plt.ylabel('Amplituda')
+        # plt.title('Demodulisani Signal i Prag Odlučivanja')
         # plt.legend()
         # plt.show()
 
         # Odbiranje i donošenje odluka sa pravilnim pragom
         received_bits = (demodulated_signal > decision_threshold).astype(int)
 
-        # Error calculation
+        # Računanje grešaka
         errors = 0
 
-        # Comparing with input bits
         it_start = 0
         it_end = 39
         for input_bit in self.input_bits:
-            # print(input_bit)
-            # print(np.all(received_bits[it_start:it_end] == 0))
-            # print(input_bit != np.all(received_bits[it_start:it_end] == 0))
-            # print("\n")
+            # Upoređivanje sa ulaznim bitovima
             if not (input_bit != np.all(received_bits[it_start:it_end] == 0)):
                 errors += 1
             it_start += 40
             it_end += 40
 
-        # BER calculation
+        # Računanje BER
         if errors == 0:
             return 0
         else:
             ber = errors / self.nbits
             return ber
 
-        # Additional print statements
-        # print("Filtered Signal:", filtered_signal)
-        # print("Decision Threshold:", decision_threshold)
-        # print("Received Bits:", received_bits)
-        # print("Input Bits:", self.input_bits)
-        # print("Min Filtered Signal:", np.min(filtered_signal))
-        # print("Max Filtered Signal:", np.max(filtered_signal))
+        # Dodatni ispis
+        # print("Filtrirani Signal:", filtrirani_signal)
+        # print("Prag Odlučivanja:", decision_threshold)
+        # print("Primljeni Bitovi:", received_bits)
+        # print("Ulazni Bitovi:", self.ulazni_bitovi)
+        # print("Min Filtrirani Signal:", np.min(filtrirani_signal))
+        # print("Max Filtrirani Signal:", np.max(filtrirani_signal))
